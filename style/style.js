@@ -19,7 +19,7 @@ export default StyleSheet.create({
     flexDirection: 'row'
   },
   title: {
-    color: '#fff',
+    color: '#ffff',
     fontWeight: 'bold',
     flex: 1,
     fontSize: 23,
@@ -54,14 +54,14 @@ export default StyleSheet.create({
     flexDirection: "row"
   },
   button: {
-    margin: 30,
-    flexDirection: "row",
-    padding: 10,
-    backgroundColor: "#73CED6",
-    width: 150,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center'
+    marginTop: 30,
+    //flexDirection: "row",
+    padding: 5,
+    //backgroundColor: "#73CED6",
+    //width: 150,
+    //borderRadius: 15,
+    //justifyContent: 'center',
+    //alignItems: 'center'
   },
   buttonText: {
     color:"#2B2B52",
