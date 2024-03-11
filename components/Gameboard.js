@@ -2,17 +2,28 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import style from '../style/style';
+import Header from './Header';
+import Footer from './Footer';
+import {
+    NBR_OF_DICES,
+    NBR_OF_THROWS,
+    MIN_SPOT,
+    MAX_SPOT,
+    BONUS_POINTS,
+    BONUS_POINTS_LIMITS
+} from "../constants/Game";
+
+
 
 let board = [];
-const NBR_OF_DICES = 5;
-const NBR_OF_THROWS = 5;
-const WINNING_POINTS =23;
 
-export default Gameboard = ({navigation}) =>{
+
+export default Gameboard = () =>{
     const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(NBR_OF_THROWS);
-  const [status, setStatus] = useState('');
-  const [selectedDices, setSelectedDices] = 
-    useState(new Array(NBR_OF_DICES).fill(false));
+    const [status, setStatus] = useState('');
+    const [selectedDices, setSelectedDices] =
+        useState(new Array(NBR_OF_DICES).fill(false));
+        
 
   const Dice = ({index}) => {
     return(
@@ -87,16 +98,18 @@ export default Gameboard = ({navigation}) =>{
   }
   
   return(
-    <View style={style.gameboard}>
-      <View style={style.flex}>{row}</View>
-      <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
-      <Text style={style.gameinfo}>{status}</Text>
-      <Pressable style={style.button}
-        onPress={() => throwDices()}>
-          <Text style={style.buttonText}>
-            Throw dices
-          </Text>
-      </Pressable>
-    </View>
+      <View style={style.gameboard}>
+          <Header />
+          <View style={style.flex}>{row}</View>
+          <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
+          <Text style={style.gameinfo}>{status}</Text>
+          <Pressable style={style.button}
+              onPress={() => throwDices()}>
+              <Text style={style.buttonText}>
+                  Throw dices
+              </Text>
+          </Pressable>
+          <Footer />
+      </View>
   )
 }
