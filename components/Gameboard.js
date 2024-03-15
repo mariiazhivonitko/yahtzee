@@ -122,34 +122,29 @@ export default Gameboard = () => {
         setSelectedDices(dices);
     }
 
-    const selectDicePoints = (i) =>{
-        let selectedPoints = [...selectedDicePoints];
-        let points = [...dicePointsTotal];
-        selectedPoints[i] = true;
-        
-        let nbrOfDices = diceSpots.reduce(
-            (total, x) => (x === (i+1) ? total+1 : total), 0); // Provide initial value 0 for total
-        
-    //     if (!selectedPoints[i]) {
-    //         points[i] = nbrOfDices * (i+1);
-    //         setSelectedDicePoints(selectedPoints => {
-    //             const updatedSelectedPoints = [...selectedPoints];
-    //             updatedSelectedPoints[i] = true;
-    //             return updatedSelectedPoints;
-    //         });
-    //         setDicePointsTotal(points);
-    //     }
-    
-    //     return points[i];
-    // }
-    
-     
-        
-        points[i] = nbrOfDices * (i+1);
-       
-        setDicePointsTotal(points);
-        setSelectedDicePoints(selectedPoints);
-        return points[i];
+    const selectDicePoints = (i) => {
+        if (nbrOfThrowsLeft === 0) {
+            let selectedPoints = [...selectedDicePoints];
+            let points = [...dicePointsTotal];
+            if (!selectedDicePoints[i]){
+            selectedPoints[i] = true;
+            let nbrOfDices = diceSpots.reduce(
+                (total, x) => (x === (i + 1) ? total + 1 : total), 0);
+
+
+            points[i] = nbrOfDices * (i + 1);
+
+            setDicePointsTotal(points);
+            setSelectedDicePoints(selectedPoints);
+            setNbrOfThrowsLeft(NBR_OF_THROWS);
+            return points[i];}
+            else{
+                setStatus("You have already selected points for " + (i + 1) + "." )
+            }
+        }
+        else {
+            setStatus("Throw " + NBR_OF_THROWS + " times before setting points.")
+        }
     }
 
     function getSpotTotal(i) {
