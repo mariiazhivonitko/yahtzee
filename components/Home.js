@@ -77,7 +77,7 @@ export default Home = ({ navigation }) => {
                             getting bonus which gives you {BONUS_POINTS}
                             points more.</Text>
                         <Text>Good luck, {playerName}!!!</Text>
-                        <Button mode="contained" onPress={() => navigation.navigate('Gameboard')}>PLAY</Button>
+                        <Button mode="contained" onPress={() => navigation.navigate('Gameboard', {player: playerName})}>PLAY</Button>
                     </>
                 }
             </View>

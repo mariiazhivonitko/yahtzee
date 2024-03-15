@@ -14,13 +14,9 @@ import {
 } from "../constants/Game";
 import { Container, Row, Col } from 'react-native-flex-grid';
 
-
-
-
 let board = [];
 
-
-export default Gameboard = () => {
+export default Gameboard = ({ navigation, route }) => {
     const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(NBR_OF_THROWS);
     const [status, setStatus] = useState('');
     const [gameEndStatus, setGameEndStatus] = useState(false);
@@ -37,6 +33,12 @@ export default Gameboard = () => {
 
     //Total point for different spots
     const [dicePointsTotal, setDicePointsTotal] = useState(new Array(MAX_SPOT).fill(0));
+
+    useEffect(() =>{
+        if (playerName === "" && route.params?.player){
+            setPlayerName(route.params.player); 
+        }
+    }, []);
 
 
     const Dice = ({ index }) => {
@@ -202,6 +204,7 @@ export default Gameboard = () => {
             </Pressable>
             <View style={style.flex}>{pointsRow}</View>
             <View style={style.flex}>{pointsToSelectRow}</View>
+            <Text>Player name: {playerName}</Text>
             <Footer />
         </View>
     )
