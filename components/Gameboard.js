@@ -36,7 +36,7 @@ export default Gameboard = () => {
     const [selectedDicePoints, setSelectedDicePoints] = useState(new Array(MAX_SPOT).fill(false));
 
     //Total point for different spots
-    const [dicePointsTotal, setDicePointsTotal] = useState(0);
+    const [dicePointsTotal, setDicePointsTotal] = useState(new Array(MAX_SPOT).fill(0));
 
 
     const Dice = ({ index }) => {
@@ -82,11 +82,12 @@ export default Gameboard = () => {
 
     //row with points
     const pointsRow = [];
-    for (let spot = 0; spot<MAX_SPOT; spot++){
+
+    for (let spot = 0; spot < MAX_SPOT; spot++){
         pointsRow.push(
             <Col key={"pointRow" + spot}>
                 {/* <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text> */}
-                <Text key={"pointRow" + spot}>0</Text>
+                <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text>
             </Col>
         )
 
@@ -112,7 +113,7 @@ export default Gameboard = () => {
     }
 
     function getDicePointsColor(i){
-        return selectedDicePoints[i] ? "black" : "steelblue"
+        return selectedDicePoints[i] ? "black" : "steelblue";
     }
 
     const selectDice = (i) => {
@@ -124,15 +125,35 @@ export default Gameboard = () => {
     const selectDicePoints = (i) =>{
         let selectedPoints = [...selectedDicePoints];
         let points = [...dicePointsTotal];
-        selectDicePoints[i] = true;
-        let nbrOfDices = diceSpots.reduce((total, x) => (x === (i+1) ? total+1 : total));
+        selectedPoints[i] = true;
+        
+        let nbrOfDices = diceSpots.reduce(
+            (total, x) => (x === (i+1) ? total+1 : total), 0); // Provide initial value 0 for total
+        
+    //     if (!selectedPoints[i]) {
+    //         points[i] = nbrOfDices * (i+1);
+    //         setSelectedDicePoints(selectedPoints => {
+    //             const updatedSelectedPoints = [...selectedPoints];
+    //             updatedSelectedPoints[i] = true;
+    //             return updatedSelectedPoints;
+    //         });
+    //         setDicePointsTotal(points);
+    //     }
+    
+    //     return points[i];
+    // }
+    
+     
+        
         points[i] = nbrOfDices * (i+1);
+       
         setDicePointsTotal(points);
         setSelectedDicePoints(selectedPoints);
         return points[i];
     }
 
     function getSpotTotal(i) {
+        
         return dicePointsTotal[i]
     }
 
@@ -154,12 +175,15 @@ export default Gameboard = () => {
     }
 
     const throwDices = () => {
+        let spots =[...diceSpots];
         for (let i = 0; i < NBR_OF_DICES; i++) {
             if (!selectedDices[i]) {
                 let randomNumber = Math.floor(Math.random() * MAX_SPOT + 1);
+                spots[i] = randomNumber;
                 board[i] = 'dice-' + randomNumber;
             }
         }
+        setDiceSpots(spots);
         setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
     }
 
