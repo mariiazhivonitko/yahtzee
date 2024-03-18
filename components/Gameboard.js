@@ -21,6 +21,9 @@ export default Gameboard = ({ navigation, route }) => {
     const [status, setStatus] = useState('');
     const [gameEndStatus, setGameEndStatus] = useState(false);
     const [playerName, setPlayerName] = useState('');
+    const [totalPoints, setTotalPoints] =useState(0);
+
+    const [bonusStatus, setBonusStatus] = useState('You are ' + BONUS_POINTS_LIMITS + 'away from bonus.')
 
     //if dices selected or not
     const [selectedDices, setSelectedDices] = useState(new Array(NBR_OF_DICES).fill(false));
@@ -96,14 +99,23 @@ export default Gameboard = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        checkWinner();
-        if (nbrOfThrowsLeft === NBR_OF_THROWS) {
-            setStatus('Game has not started');
-        }
+        // checkWinner();
+        // if (nbrOfThrowsLeft === NBR_OF_THROWS) {
+        //     setStatus('Game has not started');
+        // }
         if (nbrOfThrowsLeft < 0) {
             setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
         }
     }, [nbrOfThrowsLeft]);
+
+    useEffect(() => {
+        if (selectedDicePoints.every((val, i, arr) => val === true)){
+            setStatus("Game over");
+            setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
+            setDicePointsTotal(new Array(MAX_SPOT).fill(0));
+            setTotalPoints(0);
+        }
+    }, [selectedDicePoints])
 
     function getDiceColor(i) {
         if (board.every((val, i, arr) => val === arr[0])) {
@@ -119,15 +131,22 @@ export default Gameboard = ({ navigation, route }) => {
     }
 
     const selectDice = (i) => {
-        let dices = [...selectedDices];
+        if (nbrOfThrowsLeft === 3){
+            setStatus('You have to throw dices first');
+        }else
+        {let dices = [...selectedDices];
         dices[i] = selectedDices[i] ? false : true;
-        setSelectedDices(dices);
+        setSelectedDices(dices);}
     }
 
     const selectDicePoints = (i) => {
-        if (nbrOfThrowsLeft === 0) {
+        if (nbrOfThrowsLeft === 0 || board.every((val, i, arr) => val === arr[0])) {
             let selectedPoints = [...selectedDicePoints];
             let points = [...dicePointsTotal];
+            // if (selectedPoints.every((val, i, arr) => val === true)) {
+            //     setGameEndStatus("Game over!");
+            // }
+            // else 
             if (!selectedDicePoints[i]){
             selectedPoints[i] = true;
             let nbrOfDices = diceSpots.reduce(
@@ -135,15 +154,19 @@ export default Gameboard = ({ navigation, route }) => {
 
 
             points[i] = nbrOfDices * (i + 1);
-
+            
             setDicePointsTotal(points);
+            setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0));
             setSelectedDicePoints(selectedPoints);
+            setSelectedDices(new Array(NBR_OF_DICES).fill(false));
             setNbrOfThrowsLeft(NBR_OF_THROWS);
             return points[i];}
             else{
                 setStatus("You have already selected points for " + (i + 1) + "." )
             }
+            
         }
+        
         else {
             setStatus("Throw " + NBR_OF_THROWS + " times before setting points.")
         }
@@ -154,46 +177,58 @@ export default Gameboard = ({ navigation, route }) => {
         return dicePointsTotal[i]
     }
 
-    const checkWinner = () => {
-        if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft > 0) {
-            setStatus('You won');
-        }
-        else if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft === 0) {
-            setStatus('You won, game over');
-            setSelectedDices(new Array(NBR_OF_DICES).fill(false));
-        }
-        else if (nbrOfThrowsLeft === 0) {
-            setStatus('Game over');
-            setSelectedDices(new Array(NBR_OF_DICES).fill(false));
-        }
-        else {
-            setStatus('Keep on throwing');
-        }
-    }
+    
+
+    // const checkWinner = () => {
+    //     if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft > 0) {
+    //         setStatus('You won');
+    //     }
+    //     else if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft === 0) {
+    //         setStatus('You won, game over');
+    //         setSelectedDices(new Array(NBR_OF_DICES).fill(false));
+    //     }
+    //     else if (nbrOfThrowsLeft === 0) {
+    //         setStatus('Game over');
+    //         setSelectedDices(new Array(NBR_OF_DICES).fill(false));
+    //     }
+    //     else {
+    //         setStatus('Keep on throwing');
+    //     }
+    // }
 
     const throwDices = () => {
-        let spots =[...diceSpots];
-        for (let i = 0; i < NBR_OF_DICES; i++) {
-            if (!selectedDices[i]) {
-                let randomNumber = Math.floor(Math.random() * MAX_SPOT + 1);
-                spots[i] = randomNumber;
-                board[i] = 'dice-' + randomNumber;
-            }
+        let spots = [...diceSpots];
+        // if(selectedDicePoints.every((val, i, arr) => val === true)){
+        //     setStatus('Game over!')
+        // }
+        if (nbrOfThrowsLeft === 0) {
+            
+            setStatus('Select your points before next throw')
         }
-        setDiceSpots(spots);
-        setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
+        else {
+            for (let i = 0; i < NBR_OF_DICES; i++) {
+                if (!selectedDices[i]) {
+                    let randomNumber = Math.floor(Math.random() * MAX_SPOT + 1);
+                    spots[i] = randomNumber;
+                    board[i] = 'dice-' + randomNumber;
+                }
+            }
+            setDiceSpots(spots);
+            setStatus('Keep on throwing');
+            setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
+        }
     }
 
     return (
         <View style={style.gameboard}>
             <Header />
-
+            
             <Container>
                 <Row>{row}</Row>
             </Container>
 
 
-            {/* <View style={style.flex}>{row}</View> */}
+            
             <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
             <Text style={style.gameinfo}>{status}</Text>
             <Pressable style={style.button}
@@ -202,8 +237,15 @@ export default Gameboard = ({ navigation, route }) => {
                     Throw dices
                 </Text>
             </Pressable>
-            <View style={style.flex}>{pointsRow}</View>
-            <View style={style.flex}>{pointsToSelectRow}</View>
+            <Text>Total: {totalPoints}</Text>
+            <Text>You are {BONUS_POINTS_LIMITS - totalPoints} away from bonus</Text>
+            <Container>
+                <Row>{pointsRow}</Row>
+            </Container>
+            <Container>
+                <Row>{pointsToSelectRow}</Row>
+            </Container>
+
             <Text>Player name: {playerName}</Text>
             <Footer />
         </View>
