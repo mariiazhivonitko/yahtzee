@@ -63,7 +63,7 @@ export default Gameboard = ({ navigation, route }) => {
 
     useEffect(() => {
         if (selectedDicePoints.every((val, i, arr) => val === true)) {
-            
+
             showModal();
             setStatus("Game over. All points celected.");
             setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
@@ -132,12 +132,12 @@ export default Gameboard = ({ navigation, route }) => {
             return "orange";
         }
         else {
-            return selectedDices[i] ? "black" : "steelblue";
+            return selectedDices[i] ? "black" : "#663399";
         }
     }
 
     function getDicePointsColor(i) {
-        return selectedDicePoints[i] ? "black" : "steelblue";
+        return selectedDicePoints[i] ? "black" : "#29307A";
     }
 
     const selectDice = (i) => {
@@ -169,16 +169,16 @@ export default Gameboard = ({ navigation, route }) => {
 
                 if (points.reduce((partialSum, a) => partialSum + a, 0) >= BONUS_POINTS_LIMITS) {
                     setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0) + BONUS_POINTS);
-                    setBonusStatus('Congrats! Bonus points ('+BONUS_POINTS+')added');
+                    setBonusStatus('Congrats! Bonus points (' + BONUS_POINTS + ')added');
                 } else {
-                    
+
                     console.log(bonusLeft);
                     setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0));
-                    setBonusStatus('You are ' + bonusLeft +' away from bonus');
+                    setBonusStatus('You are ' + bonusLeft + ' away from bonus');
                 }
 
                 setDicePointsTotal(points);
-               
+
                 setSelectedDicePoints(selectedPoints);
                 setSelectedDices(new Array(NBR_OF_DICES).fill(false));
                 setNbrOfThrowsLeft(NBR_OF_THROWS);
@@ -201,24 +201,6 @@ export default Gameboard = ({ navigation, route }) => {
         return dicePointsTotal[i]
     }
 
-
-
-    // const checkWinner = () => {
-    //     if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft > 0) {
-    //         setStatus('You won');
-    //     }
-    //     else if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft === 0) {
-    //         setStatus('You won, game over');
-    //         setSelectedDices(new Array(NBR_OF_DICES).fill(false));
-    //     }
-    //     else if (nbrOfThrowsLeft === 0) {
-    //         setStatus('Game over');
-    //         setSelectedDices(new Array(NBR_OF_DICES).fill(false));
-    //     }
-    //     else {
-    //         setStatus('Keep on throwing');
-    //     }
-    // }
 
     const throwDices = () => {
         let spots = [...diceSpots];
@@ -258,7 +240,7 @@ export default Gameboard = ({ navigation, route }) => {
                 <>
                     <Icon
                         source='dice-multiple'
-                        color={'steelblue'}
+                        color={'#29307A'}
                         size={60}
                     />
                 </>
@@ -281,14 +263,16 @@ export default Gameboard = ({ navigation, route }) => {
 
             <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
             <Text style={style.gameinfo}>{status}</Text>
-            <Pressable style={style.button}
+            <Button
+                
+                mode="contained"
                 onPress={() => throwDices()}>
-                <Text style={style.buttonText}>
-                    Throw dices
-                </Text>
-            </Pressable>
-            <Text>Total: {totalPoints}</Text>
-            <Text>{bonusStatus}</Text>
+
+                Throw dices
+
+            </Button>
+            <Text style={style.gameinfo}>Total: {totalPoints}</Text>
+            <Text style={style.gameinfo}>{bonusStatus}</Text>
             <Container>
                 <Row>{pointsRow}</Row>
             </Container>

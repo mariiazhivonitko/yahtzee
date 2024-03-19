@@ -1,6 +1,10 @@
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+let primaryColor = '#29307A';
+
+export default StyleSheet.create(
+  
+  {
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -10,12 +14,12 @@ export default StyleSheet.create({
   header: {
     marginTop: 30,
     marginBottom: 15,
-    backgroundColor: 'skyblue',
+    backgroundColor: primaryColor,
     flexDirection: 'row',
   },
   footer: {
     marginTop: 20,
-    backgroundColor: 'skyblue',
+    backgroundColor: primaryColor,
     flexDirection: 'row'
   },
   title: {
@@ -44,7 +48,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     justifyContent: 'center',
     fontSize: 20,
-    marginTop: 10
+    margin: 5
   },
   row: {
     marginTop: 20,
@@ -63,14 +67,16 @@ export default StyleSheet.create({
     //justifyContent: 'center',
     //alignItems: 'center'
   },
-  buttonText: {
-    color:"#2B2B52",
-    fontSize: 20
-  },
+
   modal:{
     backgroundColor: 'white', 
     padding: 20,
     margin: 30,
 
-  }
+  },
+  iconContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
 });

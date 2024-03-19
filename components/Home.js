@@ -36,11 +36,15 @@ export default Home = ({ navigation }) => {
         <View style={style.container}>
             <Header />
             <View>
-                <Icon
-                    source="information"
-                    color={'steelblue'}
-                    size={60}
-                />
+                <View style={style.iconContainer}>
+                    <Icon
+                        style={style.icon}
+                        source="information"
+                        color={'steelblue'}
+                        size={60}
+                    />
+                </View>
+
                 {!hasPlayerName ?
                     <>
                         <TextInput
@@ -77,7 +81,7 @@ export default Home = ({ navigation }) => {
                             getting bonus which gives you {BONUS_POINTS}
                             points more.</Text>
                         <Text>Good luck, {playerName}!!!</Text>
-                        <Button mode="contained" onPress={() => navigation.navigate('Gameboard', {player: playerName})}>PLAY</Button>
+                        <Button mode="contained" onPress={() => navigation.navigate('Gameboard', { player: playerName })}>PLAY</Button>
                     </>
                 }
             </View>
