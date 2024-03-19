@@ -66,5 +66,11 @@ export default StyleSheet.create({
   buttonText: {
     color:"#2B2B52",
     fontSize: 20
+  },
+  modal:{
+    backgroundColor: 'white', 
+    padding: 20,
+    margin: 30,
+
   }
 });

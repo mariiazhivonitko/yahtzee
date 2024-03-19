@@ -13,6 +13,7 @@ import {
     BONUS_POINTS_LIMITS
 } from "../constants/Game";
 import { Container, Row, Col } from 'react-native-flex-grid';
+import { Button, Icon, Modal, Portal } from 'react-native-paper';
 
 let board = [];
 
@@ -21,9 +22,11 @@ export default Gameboard = ({ navigation, route }) => {
     const [status, setStatus] = useState('');
     const [gameEndStatus, setGameEndStatus] = useState(false);
     const [playerName, setPlayerName] = useState('');
-    const [totalPoints, setTotalPoints] =useState(0);
+    const [totalPoints, setTotalPoints] = useState(0);
 
-    const [bonusStatus, setBonusStatus] = useState('You are ' + BONUS_POINTS_LIMITS + 'away from bonus.')
+    const [bonusStatus, setBonusStatus] = useState('You are ' + BONUS_POINTS_LIMITS + ' away from bonus.');
+
+
 
     //if dices selected or not
     const [selectedDices, setSelectedDices] = useState(new Array(NBR_OF_DICES).fill(false));
@@ -37,12 +40,39 @@ export default Gameboard = ({ navigation, route }) => {
     //Total point for different spots
     const [dicePointsTotal, setDicePointsTotal] = useState(new Array(MAX_SPOT).fill(0));
 
-    useEffect(() =>{
-        if (playerName === "" && route.params?.player){
-            setPlayerName(route.params.player); 
+    //variables for modal
+    const [visible, setVisible] = useState(false);
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+
+    useEffect(() => {
+        if (playerName === "" && route.params?.player) {
+            setPlayerName(route.params.player);
         }
     }, []);
 
+    useEffect(() => {
+        // checkWinner();
+        // if (nbrOfThrowsLeft === NBR_OF_THROWS) {
+        //     setStatus('Game has not started');
+        // }
+        if (nbrOfThrowsLeft < 0) {
+            setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
+        }
+    }, [nbrOfThrowsLeft]);
+
+    useEffect(() => {
+        if (selectedDicePoints.every((val, i, arr) => val === true)) {
+            
+            showModal();
+            setStatus("Game over. All points celected.");
+            setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
+            setDicePointsTotal(new Array(MAX_SPOT).fill(0));
+            //setTotalPoints(0);
+
+
+        }
+    }, [selectedDicePoints])
 
     const Dice = ({ index }) => {
         return (
@@ -69,26 +99,26 @@ export default Gameboard = ({ navigation, route }) => {
 
     //row with spots
     const pointsToSelectRow = [];
-    for (let diceButton = 0; diceButton < MAX_SPOT; diceButton++){
+    for (let diceButton = 0; diceButton < MAX_SPOT; diceButton++) {
         pointsToSelectRow.push(
-        <Col key={"buttonRow" + diceButton}>
-            <Pressable 
-                key={"buttonRow" + diceButton}
-                onPress={() => selectDicePoints(diceButton)}>
-                <MaterialCommunityIcons 
+            <Col key={"buttonRow" + diceButton}>
+                <Pressable
                     key={"buttonRow" + diceButton}
-                    name={"numeric-" + (diceButton+1) + "-circle"}
-                    size={35}
-                    color={getDicePointsColor(diceButton)}></MaterialCommunityIcons>
-            </Pressable>
-        </Col>);
+                    onPress={() => selectDicePoints(diceButton)}>
+                    <MaterialCommunityIcons
+                        key={"buttonRow" + diceButton}
+                        name={"numeric-" + (diceButton + 1) + "-circle"}
+                        size={35}
+                        color={getDicePointsColor(diceButton)}></MaterialCommunityIcons>
+                </Pressable>
+            </Col>);
 
     }
 
     //row with points
     const pointsRow = [];
 
-    for (let spot = 0; spot < MAX_SPOT; spot++){
+    for (let spot = 0; spot < MAX_SPOT; spot++) {
         pointsRow.push(
             <Col key={"pointRow" + spot}>
                 {/* <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text> */}
@@ -97,26 +127,6 @@ export default Gameboard = ({ navigation, route }) => {
         )
 
     }
-
-    useEffect(() => {
-        // checkWinner();
-        // if (nbrOfThrowsLeft === NBR_OF_THROWS) {
-        //     setStatus('Game has not started');
-        // }
-        if (nbrOfThrowsLeft < 0) {
-            setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
-        }
-    }, [nbrOfThrowsLeft]);
-
-    useEffect(() => {
-        if (selectedDicePoints.every((val, i, arr) => val === true)){
-            setStatus("Game over");
-            setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
-            setDicePointsTotal(new Array(MAX_SPOT).fill(0));
-            setTotalPoints(0);
-        }
-    }, [selectedDicePoints])
-
     function getDiceColor(i) {
         if (board.every((val, i, arr) => val === arr[0])) {
             return "orange";
@@ -126,17 +136,18 @@ export default Gameboard = ({ navigation, route }) => {
         }
     }
 
-    function getDicePointsColor(i){
+    function getDicePointsColor(i) {
         return selectedDicePoints[i] ? "black" : "steelblue";
     }
 
     const selectDice = (i) => {
-        if (nbrOfThrowsLeft === 3){
+        if (nbrOfThrowsLeft === 3) {
             setStatus('You have to throw dices first');
-        }else
-        {let dices = [...selectedDices];
-        dices[i] = selectedDices[i] ? false : true;
-        setSelectedDices(dices);}
+        } else {
+            let dices = [...selectedDices];
+            dices[i] = selectedDices[i] ? false : true;
+            setSelectedDices(dices);
+        }
     }
 
     const selectDicePoints = (i) => {
@@ -147,37 +158,50 @@ export default Gameboard = ({ navigation, route }) => {
             //     setGameEndStatus("Game over!");
             // }
             // else 
-            if (!selectedDicePoints[i]){
-            selectedPoints[i] = true;
-            let nbrOfDices = diceSpots.reduce(
-                (total, x) => (x === (i + 1) ? total + 1 : total), 0);
+            if (!selectedDicePoints[i]) {
+                selectedPoints[i] = true;
+                let bonusLeft = BONUS_POINTS_LIMITS - totalPoints;
+                let nbrOfDices = diceSpots.reduce(
+                    (total, x) => (x === (i + 1) ? total + 1 : total), 0);
 
 
-            points[i] = nbrOfDices * (i + 1);
-            
-            setDicePointsTotal(points);
-            setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0));
-            setSelectedDicePoints(selectedPoints);
-            setSelectedDices(new Array(NBR_OF_DICES).fill(false));
-            setNbrOfThrowsLeft(NBR_OF_THROWS);
-            return points[i];}
-            else{
-                setStatus("You have already selected points for " + (i + 1) + "." )
+                points[i] = nbrOfDices * (i + 1);
+
+                if (points.reduce((partialSum, a) => partialSum + a, 0) >= BONUS_POINTS_LIMITS) {
+                    setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0) + BONUS_POINTS);
+                    setBonusStatus('Congrats! Bonus points ('+BONUS_POINTS+')added');
+                } else {
+                    
+                    console.log(bonusLeft);
+                    setTotalPoints(points.reduce((partialSum, a) => partialSum + a, 0));
+                    setBonusStatus('You are ' + bonusLeft +' away from bonus');
+                }
+
+                setDicePointsTotal(points);
+               
+                setSelectedDicePoints(selectedPoints);
+                setSelectedDices(new Array(NBR_OF_DICES).fill(false));
+                setNbrOfThrowsLeft(NBR_OF_THROWS);
+                setStatus('Keep throwing');
+                return points[i];
             }
-            
+            else {
+                setStatus("You have already selected points for " + (i + 1) + ".")
+            }
+
         }
-        
+
         else {
             setStatus("Throw " + NBR_OF_THROWS + " times before setting points.")
         }
     }
 
     function getSpotTotal(i) {
-        
+
         return dicePointsTotal[i]
     }
 
-    
+
 
     // const checkWinner = () => {
     //     if (board.every((val, i, arr) => val === arr[0]) && nbrOfThrowsLeft > 0) {
@@ -202,7 +226,7 @@ export default Gameboard = ({ navigation, route }) => {
         //     setStatus('Game over!')
         // }
         if (nbrOfThrowsLeft === 0) {
-            
+
             setStatus('Select your points before next throw')
         }
         else {
@@ -219,16 +243,42 @@ export default Gameboard = ({ navigation, route }) => {
         }
     }
 
+    const startNewGame = () => {
+        setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
+        setDicePointsTotal(new Array(MAX_SPOT).fill(0));
+        setTotalPoints(0);
+        setStatus('Game starts')
+        hideModal();
+    }
+
     return (
         <View style={style.gameboard}>
             <Header />
-            
-            <Container>
-                <Row>{row}</Row>
-            </Container>
+            {(selectedDicePoints.every((val, i, arr) => val === false) && nbrOfThrowsLeft === 3) ?
+                <>
+                    <Icon
+                        source='dice-multiple'
+                        color={'steelblue'}
+                        size={60}
+                    />
+                </>
+                :
+                <>
+                    <Container>
+                        <Row>{row}</Row>
+                    </Container>
+                </>}
+
+            <Portal>
+                <Modal visible={visible} contentContainerStyle={style.modal}>
+                    <Text>Game over!</Text>
+                    <Text>{playerName}, you got {totalPoints} points.</Text>
+                    <Button onPress={startNewGame}>Start new game</Button>
+                </Modal>
+            </Portal>
 
 
-            
+
             <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
             <Text style={style.gameinfo}>{status}</Text>
             <Pressable style={style.button}
@@ -238,7 +288,7 @@ export default Gameboard = ({ navigation, route }) => {
                 </Text>
             </Pressable>
             <Text>Total: {totalPoints}</Text>
-            <Text>You are {BONUS_POINTS_LIMITS - totalPoints} away from bonus</Text>
+            <Text>{bonusStatus}</Text>
             <Container>
                 <Row>{pointsRow}</Row>
             </Container>
