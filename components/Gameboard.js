@@ -1,9 +1,12 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import style from '../style/style';
 import Header from './Header';
 import Footer from './Footer';
+import Scoreboard from './Scoreboard';
+import { UserContext } from './UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     NBR_OF_DICES,
     NBR_OF_THROWS,
@@ -20,13 +23,13 @@ let board = [];
 export default Gameboard = ({ navigation, route }) => {
     const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(NBR_OF_THROWS);
     const [status, setStatus] = useState('');
-    const [gameEndStatus, setGameEndStatus] = useState(false);
+    
     const [playerName, setPlayerName] = useState('');
     const [totalPoints, setTotalPoints] = useState(0);
 
     const [bonusStatus, setBonusStatus] = useState('You are ' + BONUS_POINTS_LIMITS + ' away from bonus.');
 
-
+    const {setRecords} = useContext(UserContext);
 
     //if dices selected or not
     const [selectedDices, setSelectedDices] = useState(new Array(NBR_OF_DICES).fill(false));
@@ -52,10 +55,7 @@ export default Gameboard = ({ navigation, route }) => {
     }, []);
 
     useEffect(() => {
-        // checkWinner();
-        // if (nbrOfThrowsLeft === NBR_OF_THROWS) {
-        //     setStatus('Game has not started');
-        // }
+      
         if (nbrOfThrowsLeft < 0) {
             setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
         }
@@ -63,8 +63,9 @@ export default Gameboard = ({ navigation, route }) => {
 
     useEffect(() => {
         if (selectedDicePoints.every((val, i, arr) => val === true)) {
-
+            setRecords( prev => [...prev,{key: prev.length + 1, player: playerName, score: totalPoints}])
             showModal();
+
             setStatus("Game over. All points celected.");
             setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
             setDicePointsTotal(new Array(MAX_SPOT).fill(0));
@@ -73,6 +74,19 @@ export default Gameboard = ({ navigation, route }) => {
 
         }
     }, [selectedDicePoints])
+
+    const saveScoreboardData = async () => {
+        try {
+            // Store playerName and totalPoints in AsyncStorage
+            await AsyncStorage.setItem('playerName', playerName);
+            await AsyncStorage.setItem('totalPoints', totalPoints.toString());
+    
+            // Navigate to Scoreboard component
+            navigation.navigate('Scoreboard');
+        } catch (error) {
+            console.error('Error saving scoreboard data:', error);
+        }
+    };
 
     const Dice = ({ index }) => {
         return (
@@ -121,7 +135,7 @@ export default Gameboard = ({ navigation, route }) => {
     for (let spot = 0; spot < MAX_SPOT; spot++) {
         pointsRow.push(
             <Col key={"pointRow" + spot} style={{alignItems:'center'}}>
-                {/* <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text> */}
+                
                 <Text key={"pointRow" + spot} >{getSpotTotal(spot)}</Text>
             </Col>
         )
@@ -154,10 +168,7 @@ export default Gameboard = ({ navigation, route }) => {
         if (nbrOfThrowsLeft === 0 || board.every((val, i, arr) => val === arr[0])) {
             let selectedPoints = [...selectedDicePoints];
             let points = [...dicePointsTotal];
-            // if (selectedPoints.every((val, i, arr) => val === true)) {
-            //     setGameEndStatus("Game over!");
-            // }
-            // else 
+            
             if (!selectedDicePoints[i]) {
                 selectedPoints[i] = true;
                 let bonusLeft = BONUS_POINTS_LIMITS - totalPoints;
@@ -204,9 +215,7 @@ export default Gameboard = ({ navigation, route }) => {
 
     const throwDices = () => {
         let spots = [...diceSpots];
-        // if(selectedDicePoints.every((val, i, arr) => val === true)){
-        //     setStatus('Game over!')
-        // }
+        
         if (nbrOfThrowsLeft === 0) {
 
             setStatus('Select your points before next throw')

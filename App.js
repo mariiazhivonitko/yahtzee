@@ -18,7 +18,8 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
 
-  const [playerName, setPlayerName] = useState('');
+ 
+  const [records, setRecords] = useState([]);
   const [loaded] = useFonts({
     PermanentMarker: require('./assets/fonts/PermanentMarker-Regular.ttf')
 })
@@ -33,7 +34,7 @@ if (!loaded) {
   return (
     
     
-      <UserContext.Provider value={{playerName}}>
+      <UserContext.Provider value={{records, setRecords}}>
         <PaperProvider>
           <SafeAreaProvider>
             
