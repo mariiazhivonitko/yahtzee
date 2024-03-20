@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import style from '../style/style';
 import Header from './Header';
 import Footer from './Footer';
-import Scoreboard from './Scoreboard';
+
 import { UserContext } from './UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -19,17 +19,18 @@ import { Container, Row, Col } from 'react-native-flex-grid';
 import { Button, Icon, Modal, Portal } from 'react-native-paper';
 
 let board = [];
+const STORAGE_KEY = '@score_key';
 
 export default Gameboard = ({ navigation, route }) => {
     const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(NBR_OF_THROWS);
     const [status, setStatus] = useState('');
-    
+
     const [playerName, setPlayerName] = useState('');
     const [totalPoints, setTotalPoints] = useState(0);
 
     const [bonusStatus, setBonusStatus] = useState('You are ' + BONUS_POINTS_LIMITS + ' away from bonus.');
 
-    const {setRecords} = useContext(UserContext);
+    const [records, setRecords] = useState([]);
 
     //if dices selected or not
     const [selectedDices, setSelectedDices] = useState(new Array(NBR_OF_DICES).fill(false));
@@ -55,7 +56,7 @@ export default Gameboard = ({ navigation, route }) => {
     }, []);
 
     useEffect(() => {
-      
+
         if (nbrOfThrowsLeft < 0) {
             setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
         }
@@ -63,13 +64,15 @@ export default Gameboard = ({ navigation, route }) => {
 
     useEffect(() => {
         if (selectedDicePoints.every((val, i, arr) => val === true)) {
-            setRecords( prev => [...prev,{key: prev.length + 1, player: playerName, score: totalPoints}])
+            //setRecords( prev => [...prev,{key: prev.length + 1, player: playerName, score: totalPoints}])
             showModal();
 
             setStatus("Game over. All points celected.");
             setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
             setDicePointsTotal(new Array(MAX_SPOT).fill(0));
-            //setTotalPoints(0);
+            console.log()
+            getData()
+            saveScoreboardData()
 
 
         }
@@ -77,16 +80,55 @@ export default Gameboard = ({ navigation, route }) => {
 
     const saveScoreboardData = async () => {
         try {
+            
             // Store playerName and totalPoints in AsyncStorage
-            await AsyncStorage.setItem('playerName', playerName);
-            await AsyncStorage.setItem('totalPoints', totalPoints.toString());
-    
+            const newKey = records.length + 1;
+            const newRecord = {
+                key: newKey.toString(),
+                playerName: playerName,
+                score: totalPoints.toString()
+            }
+            const newRecords = [...records, newRecord];
+            setRecords(newRecords);
+            await storeData(newRecords);
+            
+            
             // Navigate to Scoreboard component
-            navigation.navigate('Scoreboard');
+        //     navigation.navigate('Scoreboard');
         } catch (error) {
             console.error('Error saving scoreboard data:', error);
         }
     };
+
+    const storeData = async (value) => {
+        try {
+          const jsonValue = JSON.stringify(value);
+          await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
+          console.log(jsonValue)
+        }
+        
+        catch (e) {
+          console.log(e);
+        }
+      }  
+
+      const getData = async() => {
+        try {
+          return AsyncStorage.getItem(STORAGE_KEY)
+          .then(req => JSON.parse(req))
+          .then(json => {
+            if (json === null) {
+              json = [];
+            }
+            setRecords(json);
+          })
+          .catch(error => console.log(error))
+        }
+        catch (e) {
+          console.log(e);
+        }
+      }
+    
 
     const Dice = ({ index }) => {
         return (
@@ -134,8 +176,8 @@ export default Gameboard = ({ navigation, route }) => {
 
     for (let spot = 0; spot < MAX_SPOT; spot++) {
         pointsRow.push(
-            <Col key={"pointRow" + spot} style={{alignItems:'center'}}>
-                
+            <Col key={"pointRow" + spot} style={{ alignItems: 'center' }}>
+
                 <Text key={"pointRow" + spot} >{getSpotTotal(spot)}</Text>
             </Col>
         )
@@ -168,7 +210,7 @@ export default Gameboard = ({ navigation, route }) => {
         if (nbrOfThrowsLeft === 0 || board.every((val, i, arr) => val === arr[0])) {
             let selectedPoints = [...selectedDicePoints];
             let points = [...dicePointsTotal];
-            
+
             if (!selectedDicePoints[i]) {
                 selectedPoints[i] = true;
                 let bonusLeft = BONUS_POINTS_LIMITS - totalPoints;
@@ -215,7 +257,7 @@ export default Gameboard = ({ navigation, route }) => {
 
     const throwDices = () => {
         let spots = [...diceSpots];
-        
+
         if (nbrOfThrowsLeft === 0) {
 
             setStatus('Select your points before next throw')
@@ -266,7 +308,7 @@ export default Gameboard = ({ navigation, route }) => {
                     <Text style={style.gameinfo2}>{playerName}, you got {totalPoints} points.</Text>
                     <Button
                         style={style.button}
-                        mode="contained" 
+                        mode="contained"
                         onPress={startNewGame}>Start new game</Button>
                 </Modal>
             </Portal>
@@ -285,14 +327,14 @@ export default Gameboard = ({ navigation, route }) => {
             </Button>
             <Text style={style.gameinfo}>Total: {totalPoints}</Text>
             <Text style={style.gameinfo2}>{bonusStatus}</Text>
-           
+
             <Container>
                 <Row style={style.pointsrow}>{pointsRow}</Row>
             </Container>
             <Container>
                 <Row style={style.row}>{pointsToSelectRow}</Row>
             </Container>
-          
+
 
             <Text style={style.gameinfo2}>Player name: {playerName}</Text>
             <Footer />
