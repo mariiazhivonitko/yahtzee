@@ -120,9 +120,9 @@ export default Gameboard = ({ navigation, route }) => {
 
     for (let spot = 0; spot < MAX_SPOT; spot++) {
         pointsRow.push(
-            <Col key={"pointRow" + spot}>
+            <Col key={"pointRow" + spot} style={{alignItems:'center'}}>
                 {/* <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text> */}
-                <Text key={"pointRow" + spot}>{getSpotTotal(spot)}</Text>
+                <Text key={"pointRow" + spot} >{getSpotTotal(spot)}</Text>
             </Col>
         )
 
@@ -253,34 +253,39 @@ export default Gameboard = ({ navigation, route }) => {
 
             <Portal>
                 <Modal visible={visible} contentContainerStyle={style.modal}>
-                    <Text>Game over!</Text>
-                    <Text>{playerName}, you got {totalPoints} points.</Text>
-                    <Button onPress={startNewGame}>Start new game</Button>
+                    <Text style={style.gameinfo}>Game over!</Text>
+                    <Text style={style.gameinfo2}>{playerName}, you got {totalPoints} points.</Text>
+                    <Button
+                        style={style.button}
+                        mode="contained" 
+                        onPress={startNewGame}>Start new game</Button>
                 </Modal>
             </Portal>
 
 
 
-            <Text style={style.gameinfo}>Throws left: {nbrOfThrowsLeft}</Text>
+            <Text style={style.gameinfo2}>Throws left: {nbrOfThrowsLeft}</Text>
             <Text style={style.gameinfo}>{status}</Text>
             <Button
-                
+                style={style.button}
                 mode="contained"
                 onPress={() => throwDices()}>
 
-                Throw dices
+                THROW DICES
 
             </Button>
             <Text style={style.gameinfo}>Total: {totalPoints}</Text>
-            <Text style={style.gameinfo}>{bonusStatus}</Text>
+            <Text style={style.gameinfo2}>{bonusStatus}</Text>
+           
             <Container>
-                <Row>{pointsRow}</Row>
+                <Row style={style.pointsrow}>{pointsRow}</Row>
             </Container>
             <Container>
-                <Row>{pointsToSelectRow}</Row>
+                <Row style={style.row}>{pointsToSelectRow}</Row>
             </Container>
+          
 
-            <Text>Player name: {playerName}</Text>
+            <Text style={style.gameinfo2}>Player name: {playerName}</Text>
             <Footer />
         </View>
     )

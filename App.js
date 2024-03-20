@@ -10,6 +10,7 @@ import { UserContext } from './components/UserContext';
 import { useContext, useState } from 'react';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -18,6 +19,16 @@ const Tab = createBottomTabNavigator();
 export default function App() {
 
   const [playerName, setPlayerName] = useState('');
+  const [loaded] = useFonts({
+    PermanentMarker: require('./assets/fonts/PermanentMarker-Regular.ttf')
+})
+
+if (!loaded) {
+  console.log('not loaded...')
+  return (<Text>Loading fonts...</Text>)
+
+} else {
+  console.log('loaded!!!..')}
 
   return (
     
@@ -62,7 +73,7 @@ export default function App() {
         >
           <Tab.Screen 
             name="Home" 
-            // options={{tabBarStyle:{display: 'none'}}}
+            options={{tabBarStyle:{display: 'none'}}}
             component={Home} />
           <Tab.Screen name="Gameboard" component={Gameboard} />
           <Tab.Screen name="Scoreboard" component={Scoreboard} />

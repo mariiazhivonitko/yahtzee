@@ -51,7 +51,8 @@ export default Home = ({ navigation }) => {
                             label={'For scoreboard enter your name:'}
                             value={playerName}
                             onChangeText={setPlayerName}
-                            autoFocus={true}>
+                            autoFocus={true}
+                            style={style.input}>
                         </TextInput>
                         <Button
                             style={style.button}
@@ -61,8 +62,8 @@ export default Home = ({ navigation }) => {
                     </>
                     :
                     <>
-                        <Text>Rules of the game</Text>
-                        <Text>THE GAME: Upper section of the classic Yahtzee
+                        <Text style={style.gameinfo}>Rules of the game</Text>
+                        <Text style={style.gameinfo2}>Upper section of the classic Yahtzee
                             dice game. You have {NBR_OF_DICES} dices and
                             for the every dice you have {NBR_OF_THROWS}
                             throws. After each throw you can keep dices in
@@ -80,8 +81,8 @@ export default Home = ({ navigation }) => {
                             {BONUS_POINTS_LIMITS} points is the limit of
                             getting bonus which gives you {BONUS_POINTS}
                             points more.</Text>
-                        <Text>Good luck, {playerName}!!!</Text>
-                        <Button mode="contained" onPress={() => navigation.navigate('Gameboard', { player: playerName })}>PLAY</Button>
+                        <Text style={style.gameinfo}>Good luck, {playerName}!!!</Text>
+                        <Button style={style.button} mode="contained" onPress={() => navigation.navigate('Gameboard', { player: playerName })}>PLAY</Button>
                     </>
                 }
             </View>
